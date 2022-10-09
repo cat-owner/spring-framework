@@ -1,4 +1,4 @@
-package pattern.chain.of.responsibility;
+package pattern.chain.of.responsibility.example01;
 
 /**
  * @author: wangyuancun

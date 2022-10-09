@@ -1,4 +1,7 @@
-package pattern.chain.of.responsibility;
+package pattern.chain.of.responsibility.example01;
+
+import pattern.chain.of.responsibility.example01.Middleware;
+import pattern.chain.of.responsibility.example01.Service;
 
 /**
  * @author: wangyuancun

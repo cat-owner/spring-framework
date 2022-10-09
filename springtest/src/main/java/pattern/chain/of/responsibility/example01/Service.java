@@ -1,4 +1,6 @@
-package pattern.chain.of.responsibility;
+package pattern.chain.of.responsibility.example01;
+
+import pattern.chain.of.responsibility.example01.Middleware;
 
 import java.util.HashMap;
 import java.util.Map;
