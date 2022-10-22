@@ -81,6 +81,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
 	 * @param configLocation file path
 	 * @throws BeansException if context creation failed
 	 */
+	//configLocation 包含了BeanDefinition 所在的文件路径;
 	public FileSystemXmlApplicationContext(String configLocation) throws BeansException {
 		this(new String[] {configLocation}, true, null);
 	}

@@ -327,6 +327,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * a custom {@link ConfigurableEnvironment} implementation.
 	 */
 	protected ConfigurableEnvironment createEnvironment() {
+		//2022.10.21日注释:StandardEnvironment()这个地方需要注意，
+		// 他的内容其实是父类初始化构造器时处理的，实际还是调了这个子类的customizePropertySources;
 		return new StandardEnvironment();
 	}
 
@@ -598,6 +600,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Initialize any placeholder property sources in the context environment.
+		//2022.10.21注释:这个方法在子类中实现，当前没有处理动作;
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
