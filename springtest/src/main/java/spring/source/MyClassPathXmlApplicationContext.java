@@ -1,5 +1,6 @@
 package spring.source;
 
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
@@ -15,6 +16,13 @@ public class MyClassPathXmlApplicationContext extends ClassPathXmlApplicationCon
 	@Override
 	protected void initPropertySources() {
 		System.out.println("初始化initPropertySources");
-		getEnvironment().setRequiredProperties("username");
+		//getEnvironment().setRequiredProperties("username");
+	}
+
+	@Override
+	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+		super.setAllowBeanDefinitionOverriding(false);
+		super.setAllowCircularReferences(false);
+		super.customizeBeanFactory(beanFactory);
 	}
 }

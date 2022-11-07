@@ -648,12 +648,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		 * 遗留待处理问题:getEnviroment()是怎么获取到的环境变量;
 		 */
 		getEnvironment().validateRequiredProperties();
-
+		/**
+		 * 2022.11.07
+		 * 判断刷新前的应用程序监听器集合是否为空，如果为空，则将监听器添加到此集合中;
+		 */
 		// Store pre-refresh ApplicationListeners...
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}
 		else {
+			/**
+			 * 2022.11.07
+			 * 如果不为空，则清空集合元素对象;
+			 */
 			// Reset local application listeners to pre-refresh state.
 			this.applicationListeners.clear();
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
@@ -661,6 +668,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Allow for the collection of early ApplicationEvents,
 		// to be published once the multicaster is available...
+		/**
+		 * 2022.11.07
+		 * 创建刷新前的监听事件集合;
+		 */
 		this.earlyApplicationEvents = new LinkedHashSet<>();
 	}
 
