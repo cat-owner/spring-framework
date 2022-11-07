@@ -164,6 +164,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/** Unique id for this context, if any. */
+	/**
+	 * 创建上下文唯一标识;
+	 */
 	private String id = ObjectUtils.identityToString(this);
 
 	/** Display name. */
@@ -458,6 +461,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver
 	 */
 	protected ResourcePatternResolver getResourcePatternResolver() {
+		/**
+		 * 2022.11.01 创建一个资源模式解析器(其实就是用来解析xml配置文件)
+		 */
 		return new PathMatchingResourcePatternResolver(this);
 	}
 
@@ -522,6 +528,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			/**
 			 * 2022.10.24
 			 * 做容器刷新前的准备工作;
+			 * 1：设置容器的启动时间；
+			 * 2：设置活跃状态为true;
+			 * 3：设置关闭状态为false;
+			 * 4：获取Environment对象，并获取当前系统的属性值到Environment对象中;
+			 * 5：准备监听器和事件的集合对象，默认为空的对象;
+			 *
 			 */
 			prepareRefresh();
 
@@ -547,6 +559,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
+				/**
+				 * 2022.10.27
+				 * 国际化的处理
+				 */
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
@@ -595,8 +611,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareRefresh() {
 		// Switch to active.
+		/**
+		 * 2022.11.04设置容器启动的时间;
+		 */
 		this.startupDate = System.currentTimeMillis();
+		/**
+		 * 设置容器的关闭标志位;
+		 */
 		this.closed.set(false);
+		/**
+		 * 设置容器激活的标志位;
+		 */
 		this.active.set(true);
 
 		if (logger.isDebugEnabled()) {
@@ -610,10 +635,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// Initialize any placeholder property sources in the context environment.
 		//2022.10.21注释:这个方法在子类中实现，当前没有处理动作;
+		/**
+		 * 2022.11.07
+		 * 留给子类实现,初始化属性资源;
+		 */
 		initPropertySources();
 
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
+		/**
+		 * 2022.11.07 创建并获取环境变量，初始化属性资源；
+		 * 遗留待处理问题:getEnviroment()是怎么获取到的环境变量;
+		 */
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...

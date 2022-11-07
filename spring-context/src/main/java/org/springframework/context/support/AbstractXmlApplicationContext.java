@@ -45,6 +45,9 @@ import org.springframework.lang.Nullable;
  */
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
 
+	/**
+	 * 设置xml文件的验证标志,默认为true;
+	 */
 	private boolean validating = true;
 
 
