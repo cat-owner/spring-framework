@@ -651,6 +651,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		/**
 		 * 2022.11.07
 		 * 判断刷新前的应用程序监听器集合是否为空，如果为空，则将监听器添加到此集合中;
+		 *
+		 * 2022.11.09
+		 * 这里在spring boot中做了拓展;
+		 *
 		 */
 		// Store pre-refresh ApplicationListeners...
 		if (this.earlyApplicationListeners == null) {
