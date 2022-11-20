@@ -931,6 +931,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
+				/**
+				 * 2022.11.17
+				 * 注册前的最后一个校验,这里的校验不同于之前的xml文件的校验，主要是对应的abstractBeanDefinition属性的methodOverrides
+				 * 校验，校验methodOverrides是否与工厂方法并存或者methodoverrides对应的方法根本不存在;
+				 */
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -940,7 +945,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+		/**
+		 * 2022.11.17
+		 * 处理已经注册的beanName情况;
+		 */
 		if (existingDefinition != null) {
+			/**
+			 * 2022.11.17
+			 * 如果对应的beanName已经注册且在配置中配置bean不允许被覆盖，则抛出异常;
+			 */
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
@@ -982,7 +995,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 			else {
 				// Still in startup registration phase
+				/**
+				 * 2022.11.17
+				 * 注册beanDefinition
+				 */
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				/**
+				 * 2022.11.17
+				 * 记录beanName;
+				 */
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
 			}
