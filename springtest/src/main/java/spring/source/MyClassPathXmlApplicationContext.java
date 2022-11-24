@@ -5,7 +5,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * @author: wangyuancun
- * @description: java类作用描述
+ * @description: 测试类
  * @date: 2022/11/4
  */
 public class MyClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
