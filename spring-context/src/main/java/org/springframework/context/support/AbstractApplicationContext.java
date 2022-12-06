@@ -544,7 +544,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			 * 加载xml配置文件的属性值到当前工厂中，最重要的是BeanDefinition
 			 */
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
-
+			/**
+			 * 2022.12.05
+			 * beanFactory的准备工作,对各种属性进行填充;
+			 */
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
@@ -706,12 +709,35 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
 		// Tell the internal bean factory to use the context's class loader etc.
+		/**
+		 * 2022.12.05
+		 * 设置beanFactory的classLoader为当前context的classloader;
+		 */
 		beanFactory.setBeanClassLoader(getClassLoader());
+		/**
+		 * 2022.12.05
+		 * 设置beanFactory的表达式语言处理器;
+		 */
 		beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+		/**
+		 * 2022.12.06
+		 * 为beanFactory增加一个默认的propertyEditor,这个主要是bean的属性等设置管理的一个工具类;
+		 *
+		 * 待分析真正用到的地方;
+		 */
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
-
+		/**
+		 * 2022.12.06
+		 * 添加beanPostProcessor
+		 * ApplicationContextAware对象的注入;
+		 */
 		// Configure the bean factory with context callbacks.
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+		/**
+		 * 2022.12.06
+		 * 设置主要是忽略自动装配的接口，原因很简单，这些接口的实现是由容器通过set方法进行注入的
+		 * 所以在使用autowire进行注入时候需要将这些接口进行忽略;
+		 */
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
