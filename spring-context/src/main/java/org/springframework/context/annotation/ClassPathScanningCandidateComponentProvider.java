@@ -204,6 +204,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 */
 	@SuppressWarnings("unchecked")
 	protected void registerDefaultFilters() {
+		/**
+		 * 2023.2.20
+		 * 注册@component对应的AnnotationTypeFilter
+		 * 这个在后面实际扫描时会用到这个进行判断;
+		 *
+		 */
 		this.includeFilters.add(new AnnotationTypeFilter(Component.class));
 		ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();
 		try {
@@ -490,6 +496,10 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				return false;
 			}
 		}
+		/**
+		 * 2023.2.10
+		 * 符合includeFilters的会进行条件匹配,通过了才是Bean,也就是先看有没有@Component,再看是否符合@Conditional
+		 */
 		for (TypeFilter tf : this.includeFilters) {
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);

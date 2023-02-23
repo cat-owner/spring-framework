@@ -277,18 +277,34 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				/**
+				 * 2023.2.20
+				 * 生成Bean的名称，如果Component的value有值则取对应的value值，如果没有的话则用类的名称小写(类的名字第一个和第二字字母都非大写);
+				 */
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					/**
+					 * 2023.2.20
+					 * 解析@Lazy,@Primary,@DependsOn,@Role,@Description
+					 */
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				/**
+				 * 2023.2.20
+				 * 检查Spring 容器中是否已经存在beanName；
+				 */
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					/**
+					 * 2023.2.21
+					 * 注册;
+					 */
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
@@ -333,6 +349,10 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * bean definition has been found for the specified name
 	 */
 	protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) throws IllegalStateException {
+		/**
+		 * 2023.2.21
+		 * 从beanDefinitionMap中通过beanName来
+		 */
 		if (!this.registry.containsBeanDefinition(beanName)) {
 			return true;
 		}
