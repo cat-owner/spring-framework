@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 /**
  * @author: wangyuancun
  * @description: java类作用描述
- * @date: 2023/2/17
+ * @date: 2023/3/2
  */
 @Component
-//@DependsOn("orderService")
-public class UserService {
+@DependsOn("userService")
+public class OrderService {
+
 }

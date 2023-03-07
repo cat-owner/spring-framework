@@ -246,7 +246,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String beanName = transformedBeanName(name);
 		Object bean;
 
-		// Eagerly check singleton cache for manually registered singletons.
+		// Eagerly check singleton cache for manually registered singletons.-检查单例池中是否有手动注册的单例
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -306,8 +306,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						/**
+						 * 2023.3.6 dep被beanName依赖了，存入dependentBeanMap中，dep为key,beanName为value;
+						 */
 						registerDependentBean(dep, beanName);
 						try {
+							/**
+							 * 2023.3.6 创建所依赖的bean;
+							 */
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -1273,7 +1279,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Return a merged RootBeanDefinition, traversing the parent bean definition
+	 * 返回一个合并的RootBeanDefinition,遍历父类的bean定义;
 	 * if the specified bean corresponds to a child bean definition.
+	 * 如果指定的bean对应于子bean定于;
 	 * @param beanName the name of the bean to retrieve the merged definition for
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
@@ -1360,7 +1368,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						throw new BeanDefinitionStoreException(bd.getResourceDescription(), beanName,
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
-					// Deep copy with overridden values.
+					// Deep copy with overridden values.--子BeanDefinition的属性覆盖父BeanDefinition的属性,这就是合并;
 					mbd = new RootBeanDefinition(pbd);
 					mbd.overrideFrom(bd);
 				}

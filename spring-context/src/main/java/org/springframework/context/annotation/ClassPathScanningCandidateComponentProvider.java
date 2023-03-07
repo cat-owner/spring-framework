@@ -315,6 +315,13 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * @return a corresponding Set of autodetected bean definitions
 	 */
 	public Set<BeanDefinition> findCandidateComponents(String basePackage) {
+		/**
+		 * 2023.2.23
+		 * 这个地方类似于一个索引,在配置文件中配置哪些类为bean;
+		 * for example: 1：在resources的META-INF下面新建一个spring-components文件；
+		 * 2:在配置文件里面配置：com.learn02.service.UserService=org.springframework.stereotype.Component
+		 * 这个配置就相当于在类的上面配置注解：@Component
+		 */
 		if (this.componentsIndex != null && indexSupportsIncludeFilters()) {
 			return addCandidateComponentsFromIndex(this.componentsIndex, basePackage);
 		}
