@@ -325,6 +325,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					/**
+					 * 2023.3.7 通过beanName从单例池获取单例，如果没有获取到则通过createBean(beanName,mbd,args)创建一个
+					 */
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							return createBean(beanName, mbd, args);
@@ -1475,6 +1478,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throws CannotLoadBeanClassException {
 
 		try {
+			/**
+			 * 2023.3.7
+			 * mbd.hasBeanClass() 判断这个beanClass是否被加载了
+			 *
+			 *
+			 */
 			if (mbd.hasBeanClass()) {
 				return mbd.getBeanClass();
 			}
@@ -1493,6 +1502,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		catch (ClassNotFoundException ex) {
 			throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), ex);
 		}
+
 		catch (LinkageError err) {
 			throw new CannotLoadBeanClassException(mbd.getResourceDescription(), beanName, mbd.getBeanClassName(), err);
 		}

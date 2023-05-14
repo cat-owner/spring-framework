@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @date: 2023/3/2
  */
 @Component
-@DependsOn("userService")
+//@DependsOn("userService")
 public class OrderService {
 
 }
