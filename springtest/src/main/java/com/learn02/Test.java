@@ -1,5 +1,6 @@
 package com.learn02;
 
+import com.learn02.service.OrderService;
 import com.learn02.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -13,9 +14,9 @@ public class Test {
 		/**
 		 * 1：扫描;2：创建非懒加载的bean;
 		 */
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig02.class);
-		UserService userService =(UserService)context.getBean("userService");
-		System.out.println(userService);
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ThirdConfig.class);
+		OrderService orderService = context.getBean(OrderService.class);
+		System.out.println(orderService);
 
 	}
 }
