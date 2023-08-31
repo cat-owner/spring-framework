@@ -590,6 +590,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
+			// 这里是将一段lambda放入三级缓存中,可以看见bean填充属性之前会将三级缓存创建好,它传入了一个还未初始化的bean
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -1712,6 +1713,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					}
 					originalValue = new DependencyDescriptor(new MethodParameter(writeMethod, 0), true);
 				}
+				//会产生循环依赖的地方
 				Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
 				Object convertedValue = resolvedValue;
 				boolean convertible = bw.isWritableProperty(propertyName) &&
