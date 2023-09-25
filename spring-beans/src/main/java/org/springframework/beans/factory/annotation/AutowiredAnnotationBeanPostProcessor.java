@@ -293,6 +293,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		}
 
 		// Quick check on the concurrent map first, with minimal locking.
+		//判断缓存中是否有构造方法;
 		Constructor<?>[] candidateConstructors = this.candidateConstructorsCache.get(beanClass);
 		if (candidateConstructors == null) {
 			// Fully synchronized resolution now...
@@ -301,6 +302,9 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				if (candidateConstructors == null) {
 					Constructor<?>[] rawCandidates;
 					try {
+						/**
+						 * 拿出所有的构造方法；
+						 */
 						rawCandidates = beanClass.getDeclaredConstructors();
 					}
 					catch (Throwable ex) {
@@ -308,11 +312,20 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								"Resolution of declared constructors on bean Class [" + beanClass.getName() +
 								"] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
 					}
+					//这个list用于存放加了@Autowired注解的构造方法
 					List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
+					/**
+					 * 1：加了@Autowired注解的构造方法,如果required=true,就用这个变量存放;
+					 * 2：一个类中只能有一个required为true的构造方法,默认情况下@Autowired等于@Autowired(required = true)
+					 *
+					 */
 					Constructor<?> requiredConstructor = null;
+					//用于存放默认无参构造方法;
 					Constructor<?> defaultConstructor = null;
+					//kotlin相关,可以暂时忽略
 					Constructor<?> primaryConstructor = BeanUtils.findPrimaryConstructor(beanClass);
 					int nonSyntheticConstructors = 0;
+					//遍历所有的构造方法;
 					for (Constructor<?> candidate : rawCandidates) {
 						if (!candidate.isSynthetic()) {
 							nonSyntheticConstructors++;
@@ -320,8 +333,13 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 						else if (primaryConstructor != null) {
 							continue;
 						}
+						/**
+						 * 当前遍历的构造方法是否写了@Autowired注解;
+						 */
 						MergedAnnotation<?> ann = findAutowiredAnnotation(candidate);
 						if (ann == null) {
+							// 如果beanClass是代理类,则得到被代理的类的类型。
+							//其实也就是判断被代理类里面有没有添加@autowired注解.
 							Class<?> userClass = ClassUtils.getUserClass(beanClass);
 							if (userClass != beanClass) {
 								try {
@@ -335,13 +353,24 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 							}
 						}
 						if (ann != null) {
+							/**
+							 * 如果有多个构造方法,只要其中有一个构造方法上面加了@Autowired(required = true),
+							 * 在其他构造方法上就不能加@Autowired注解(不管这个required是true还是false),不然都会报错。
+							 * @Autowired(required = true)   《==》@Autowired 等价
+							 */
 							if (requiredConstructor != null) {
 								throw new BeanCreationException(beanName,
 										"Invalid autowire-marked constructor: " + candidate +
 										". Found constructor with 'required' Autowired annotation already: " +
 										requiredConstructor);
 							}
+							/**这个地方就是获取 @Autowired(required = true)中这个required的值*/
 							boolean required = determineRequiredStatus(ann);
+							/**
+							 * 这样写的目的其实是防止你有两个构造方法都有加@Autowired注解,
+							 * 但是呢如果第1次进来的是@Autowired(required = false),第2次进来的是@Autowired(required = true)
+							 * 那么
+							 */
 							if (required) {
 								if (!candidates.isEmpty()) {
 									throw new BeanCreationException(beanName,
@@ -351,14 +380,26 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								}
 								requiredConstructor = candidate;
 							}
+							/**
+							 * 1：记录所有加了@Autowired的构造方法,不管required是true还是false;
+							 * 2：如果默认无参构造方法上也加了@Autowired，那么也会加到candidates.
+							 */
 							candidates.add(candidate);
 						}
+						//判断是否是无参构造方法，如果是的话,记录一下.
 						else if (candidate.getParameterCount() == 0) {
 							defaultConstructor = candidate;
 						}
 					}
+					/**
+					 * 通过上面的代码我们可以知道这里的candidates不为空只有以下两种情况：
+					 * 1：如果@Autowired的required是true 那么只有这一个构造方法加有@Autowired注解;
+					 * 2：所有的构造方法上加的@Autowired都是required=false;
+					 */
 					if (!candidates.isEmpty()) {
 						// Add default constructor to list of optional constructors, as fallback.
+						// 这个地方大概的意思是如果没有@Autowired(required = true)的情况且有一个无参的构造方法,
+						// 就把这个无参的合并到candidates这个里面
 						if (requiredConstructor == null) {
 							if (defaultConstructor != null) {
 								candidates.add(defaultConstructor);
@@ -370,8 +411,18 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 										"default constructor to fall back to: " + candidates.get(0));
 							}
 						}
+						/**
+						 * 使用new Constructor<?>[0]的好处：
+						 * 1：使用new Constructor<?>[0]作为参数数组,表示目标数组的类型是Constructor<?>,长度是0,
+						 *    这意味着无论List集合有多少个元素,都会创建一个新的数组,并且刚好能容纳所有元素
+						 * 2：使用new Constructor<?>[0]作为参数数组有两个好处：一是可以避免指定数组长度，因为List集合的大小可能会变化;
+						 *    二是可以提高性能，因为JVM可以根据List集合的大小优化内存分配
+						 */
 						candidateConstructors = candidates.toArray(new Constructor<?>[0]);
 					}
+					/**
+					 * 对于没有添加@Autowired注解的，且只有一个有参数的构造方法。直接就返回这个构造方法;
+					 */
 					else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
 						candidateConstructors = new Constructor<?>[] {rawCandidates[0]};
 					}
@@ -382,6 +433,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					else if (nonSyntheticConstructors == 1 && primaryConstructor != null) {
 						candidateConstructors = new Constructor<?>[] {primaryConstructor};
 					}
+					// 对于没有添加@Autowired注解的，且不是只有一个有参数的构造方法,直接返回一个空;
+					//特别注意，无参的构造方法也是返回一个空;
 					else {
 						candidateConstructors = new Constructor<?>[0];
 					}

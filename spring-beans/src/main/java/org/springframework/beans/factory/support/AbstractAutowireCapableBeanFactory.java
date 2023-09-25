@@ -616,10 +616,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
 			}
 		}
-
 		if (earlySingletonExposure) {
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
+				//大部分情况下这两个对象是相等的,但是如果使用了异步的注解@Async会生成新的代理对象导致不同;
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
@@ -1206,17 +1206,34 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 			}
 		}
+		/**是否缓存里面的构造方法*/
 		if (resolved) {
+			/**构造方法里面是否有参数需要解析*/
 			if (autowireNecessary) {
 				return autowireConstructor(beanName, mbd, null, null);
 			}
+			/**无参的构造方法创建实例*/
 			else {
 				return instantiateBean(beanName, mbd);
 			}
 		}
 
 		// Candidate constructors for autowiring?
+		/**
+		 * 推断构造方法核心;
+		 * 这里大概有三个情况：
+		 * 1：一个
+		 * 2：多个
+		 * 3：null
+		 *
+		 */
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
+		/**
+		 * 1：如果推断出来了构造方法,则需要给构造方法赋值,也就是给构造方法的参数赋值,也就是构造方法注入.
+		 * 2：如果没有推断出来构造方法,但是autowireMode为AUTOWIRE_CONSTRUCTOR,则也可能给构造方法赋值
+		 * 3：如果通过BeanDefinition指定了构造方法参数值,那肯定就要进行构造方法注入了。
+		 * 4：如果调用getBean的时候时候传入了构造方法参数值,那肯定就是要进行构造方法注入了.
+		 */
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
 			return autowireConstructor(beanName, mbd, ctors, args);
@@ -1229,6 +1246,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// No special handling: simply use no-arg constructor.
+		/**
+		 * 如果上面返回的是null,这里就使用默认的无参构造方法来进行实例化,如果没有无参的构造方法则报错.
+		 */
 		return instantiateBean(beanName, mbd);
 	}
 

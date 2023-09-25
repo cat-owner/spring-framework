@@ -1,6 +1,8 @@
 package com.learn02.service;
 
+import jdk.nashorn.internal.objects.annotations.Property;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**

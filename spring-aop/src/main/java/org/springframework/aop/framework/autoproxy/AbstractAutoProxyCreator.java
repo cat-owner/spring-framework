@@ -296,6 +296,10 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 	public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
 		if (bean != null) {
 			Object cacheKey = getCacheKey(bean.getClass(), beanName);
+			/**
+			 * 在之前进行了AOP的时候会在这个earlyProxyReferences里面添加,
+			 * 在循环依赖的时候会提前执行AOP,这个地方判断就是不需要再执行AOP了
+			 */
 			if (this.earlyProxyReferences.remove(cacheKey) != bean) {
 				return wrapIfNecessary(bean, beanName, cacheKey);
 			}
